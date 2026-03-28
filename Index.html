@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Menu | Snack Restaurant Al Qods - Benguerir</title>
+    
+    <!-- Polices Google : Tajawal (superbe pour un mix Latin/Arabe) & Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        alqods: {
+                            yellow: '#facc15', // Le jaune vif du menu papier
+                            red: '#ef4444',    // Le rouge des bulles "Offre Speciale"
+                            dark: '#1e293b',   // Gris ardoise foncé pour les textes
+                            bg: '#f8fafc',     // Fond global très clair
+                            card: '#ffffff'    // Fond blanc pur pour les plats
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        arabic: ['Tajawal', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <!-- Babel pour JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { background-color: #f8fafc; color: #1e293b; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        /* Motif d'arrière-plan subtil pour le header */
+        .bg-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- DONNÉES DU MENU EXTRAITES DES PHOTOS (Al Qods) ---
+        // TOUTES les images sont désormais renseignées avec des photos appétissantes.
+        const menuData = [
+            {
+                id: 'tacos',
+                title: 'Tacos',
+                icon: 'utensils',
+                items: [
+                    { name: 'Tacos Alqods', price: 42, desc: 'L\'offre spéciale de la maison avec le meilleur mix', special: true, image: 'https://images.unsplash.com/photo-1668894140508-6a3f0e0d86b7?w=200&h=200&fit=crop' },
+                    { name: 'Tacos Dinde', price: 35, desc: 'Wrap garni de dinde marinée et sauce fromagère', image: 'https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=200&h=200&fit=crop' },
+                    { name: 'Tacos Viande Hachée', price: 35, desc: 'Viande de bœuf hachée épicée, frites', image: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=200&h=200&fit=crop' },
+                    { name: 'Tacos Mixte', price: 38, desc: 'Mélange dinde et viande hachée', image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop' },
+                    { name: 'Tacos Cordon Bleu', price: 40, desc: 'Cordon bleu croustillant et fondant', image: 'https://images.unsplash.com/photo-1615719413546-198b25453f85?w=200&h=200&fit=crop' },
+                    { name: 'Tacos Fruit de Mer', price: 42, desc: 'Garni de délices de l\'océan', image: 'https://images.unsplash.com/photo-1559715716-120ffa56fb21?w=200&h=200&fit=crop' }
+                ]
+            },
+            {
+                id: 'pizzas',
+                title: 'Pizzas',
+                icon: 'circle-dashed',
+                items: [
+                    { name: 'Pizza Alqods', price: 55, desc: 'Mozzarella, dinde, viande hachée (Grand format)', special: true, image: 'https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=200&h=200&fit=crop' },
+                    { name: 'Margharita', price: 33, desc: 'Grand format: Mozzarella, sauce tomate, olives noires', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=200&h=200&fit=crop' },
+                    { name: 'Poulet', price: 43, desc: 'Grand format: Mozzarella, poulet, champignons', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200&h=200&fit=crop' },
+                    { name: '4 Saisons', price: 45, desc: 'Grand format: Dinde, viande hachée, saucisse, crevettes', image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop' },
+                    { name: 'Fruit de mer', price: 50, desc: 'Grand format: Crevette, calmar, champignons', image: 'https://images.unsplash.com/photo-1564936281291-294551497d81?w=200&h=200&fit=crop' }
+                ]
+            },
+            {
+                id: 'burgers',
+                title: 'Burgers',
+                icon: 'circle',
+                items: [
+                    { name: 'Burger Alqods', price: 38, desc: 'Burger double généreux, l\'offre spéciale', special: true, image: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=200&h=200&fit=crop' },
+                    { name: 'Cheese Burger', price: 28, desc: 'Steak de bœuf, cheddar fondant, sauce', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop' },
+                    { name: 'Big Mak', price: 30, desc: 'Double steak façon classique', image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=200&h=200&fit=crop' },
+                    { name: 'Big Burger Viande Hachée', price: 35, desc: 'Extra généreux en viande', image: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=200&h=200&fit=crop' },
+                    { name: 'Big Burger Chicken', price: 35, desc: 'Poulet pané croustillant extra large', image: 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=200&h=200&fit=crop' }
+                ]
+            },
+            {
+                id: 'poulet',
+                title: 'Poulet Rôti & Grillé',
+                icon: 'flame',
+                items: [
+                    { name: 'Poulet Entier Rôti', price: 120, desc: 'Poulet entier cuit à la broche, parfait à partager', image: 'https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?w=200&h=200&fit=crop' },
+                    { name: '1/2 Poulet Rôti', price: 60, desc: 'Moitié de poulet rôti juteux', image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=200&h=200&fit=crop' },
+                    { name: '1/4 Poulet Rôti', price: 33, desc: 'Quart de poulet rôti au feu de bois', image: 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=200&h=200&fit=crop' },
+                    { name: '1/4 Poulet Grillé', price: 35, desc: 'Quart de poulet mariné et grillé', image: 'https://images.unsplash.com/photo-1517594422361-5e1f0e21049e?w=200&h=200&fit=crop' },
+                    { name: 'Chicken American', price: 45, desc: 'Morceaux de poulet frit croustillant', image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=200&h=200&fit=crop' }
+                ]
+            },
+            {
+                id: 'sandwiches',
+                title: 'Paninis & Sandwichs',
+                icon: 'sandwich',
+                items: [
+                    { name: 'Panini Alqods', price: 35, desc: 'Saucisse, Viande hachée, Dinde, Nugget, Fruits de mer', special: true, image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=200&h=200&fit=crop' },
+                    { name: 'Sandwich Alqods', price: 35, desc: 'Le sandwich signature bien garni', special: true, image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=200&h=200&fit=crop' },
+                    { name: 'Panini Dinde', price: 27, desc: 'Pain pressé, dinde fumée et fromage fondant', image: 'https://images.unsplash.com/photo-1619881589316-56c7f9e6b587?w=200&h=200&fit=crop' },
+                    { name: 'Panini Mixte', price: 30, desc: 'Panini chaud aux viandes variées', image: 'https://images.unsplash.com/photo-1594221708779-94832f4320d1?w=200&h=200&fit=crop' },
+                    { name: 'Sandwich Viande Hachée', price: 25, desc: 'Pain frais garni de viande hachée marocaine', image: 'https://images.unsplash.com/photo-1628191137573-dee64e727614?w=200&h=200&fit=crop' },
+                    { name: 'Shawarma Plat', price: 42, desc: 'Viande shawarma servie à l\'assiette', image: 'https://images.unsplash.com/photo-1559847844-5315695dadae?w=200&h=200&fit=crop' }
+                ]
+            },
+            {
+                id: 'salades',
+                title: 'Salades',
+                icon: 'leaf',
+                items: [
+                    { name: 'Salade Alqods', price: 45, desc: 'La complète: Laitue, riz, fromage, raisins secs, amandes, fruits, calamars, crevettes, poulet', special: true, image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop' },
+                    { name: 'Marocaine', price: 15, desc: 'Tomates, oignons, poivrons, olives', image: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=200&h=200&fit=crop' },
+                    { name: 'Cesar', price: 30, desc: 'Poulet, pain grillé, tomates cerises', image: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=200&h=200&fit=crop' },
+                    { name: 'Pêcheur', price: 40, desc: 'Crevettes, calamars, avocat, champignons', image: 'https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?w=200&h=200&fit=crop' }
+                ]
+            },
+            {
+                id: 'jus',
+                title: 'Jus Frais & Desserts',
+                icon: 'cup-soda',
+                items: [
+                    { name: 'Zaâzaâ', price: 30, desc: 'Le célèbre cocktail ultra gourmand avec avocat, fruits secs, crème', special: true, image: 'https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?w=200&h=200&fit=crop' },
+                    { name: 'Jus Avocat', price: 20, desc: 'Jus d\'avocat frais au lait', image: 'https://images.unsplash.com/photo-1604085792782-8d92f276d7d8?w=200&h=200&fit=crop' },
+                    { name: 'Jus Panaché', price: 20, desc: 'Mélange de fruits frais de saison', image: 'https://images.unsplash.com/photo-1595981267035-7b04d8496609?w=200&h=200&fit=crop' },
+                    { name: 'Jus d\'Orange', price: 15, desc: '100% pressé', image: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=200&h=200&fit=crop' },
+                    { name: 'Jus Fruit sec', price: 25, desc: 'Cocktail onctueux aux fruits secs', image: 'https://images.unsplash.com/photo-1577805947697-89e18249d767?w=200&h=200&fit=crop' }
+                ]
+            }
+        ];
+
+        const Icon = ({ name, className }) => {
+            useEffect(() => {
+                lucide.createIcons();
+            }, [name]);
+            return <i data-lucide={name} className={className}></i>;
+        };
+
+        const App = () => {
+            const [activeCategory, setActiveCategory] = useState(menuData[0].id);
+            const [searchQuery, setSearchQuery] = useState('');
+
+            const filteredMenu = useMemo(() => {
+                if (!searchQuery) return menuData;
+                return menuData.map(category => ({
+                    ...category,
+                    items: category.items.filter(item => 
+                        item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                        (item.desc && item.desc.toLowerCase().includes(searchQuery.toLowerCase()))
+                    )
+                })).filter(category => category.items.length > 0);
+            }, [searchQuery]);
+
+            return (
+                <div className="max-w-md mx-auto min-h-screen bg-alqods-bg pb-24 shadow-2xl relative font-sans">
+                    
+                    {/* --- HEADER HERO --- */}
+                    <header className="relative mb-6">
+                        {/* Motif Jaune Al Qods */}
+                        <div className="h-40 w-full bg-alqods-yellow bg-pattern relative rounded-b-[2rem] shadow-md flex flex-col items-center justify-center pt-4">
+                            <h1 className="font-arabic font-bold text-4xl text-alqods-dark tracking-wide mb-1">قدس Al qods</h1>
+                            <p className="font-arabic font-medium text-alqods-dark/80 text-sm">من حقكم أن تستمتعو بأكل جيد</p>
+                        </div>
+
+                        {/* Bulle d'info flottante */}
+                        <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 z-10 w-[90%]">
+                            <div className="bg-white p-3 rounded-2xl shadow-lg border border-gray-100 flex justify-around items-center">
+                                <a href="tel:0624435876" className="flex flex-col items-center gap-1 text-alqods-dark hover:text-alqods-red">
+                                    <Icon name="phone" className="w-5 h-5 text-alqods-yellow" />
+                                    <span className="text-[0.65rem] font-bold">0624 43 58 76</span>
+                                </a>
+                                <div className="w-px h-8 bg-gray-200"></div>
+                                <div className="flex flex-col items-center gap-1 text-alqods-dark">
+                                    <Icon name="map-pin" className="w-5 h-5 text-alqods-yellow" />
+                                    <span className="text-[0.65rem] font-bold">Hay Alqods N°3</span>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Espace pour compenser la bulle flottante */}
+                    <div className="h-8"></div>
+
+                    {/* --- BARRE DE RECHERCHE --- */}
+                    <div className="px-5 mb-2 relative z-10">
+                        <div className="bg-white flex items-center p-3.5 rounded-2xl shadow-sm border border-gray-200 focus-within:ring-2 ring-alqods-yellow ring-opacity-50 transition-all">
+                            <Icon name="search" className="w-5 h-5 text-gray-400 mr-3" />
+                            <input 
+                                type="text" 
+                                placeholder="Chercher un plat, burger, jus..." 
+                                className="bg-transparent text-gray-700 w-full outline-none placeholder-gray-400 text-sm font-medium"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    {/* --- NAVIGATION DES CATÉGORIES --- */}
+                    {!searchQuery && (
+                        <nav className="sticky top-0 bg-alqods-bg/95 backdrop-blur-md z-20 py-4 mt-2 border-b border-gray-200">
+                            <div className="flex overflow-x-auto no-scrollbar px-5 gap-3">
+                                {menuData.map((cat) => (
+                                    <button
+                                        key={cat.id}
+                                        onClick={() => {
+                                            setActiveCategory(cat.id);
+                                            window.scrollTo({ top: 320, behavior: 'smooth' });
+                                        }}
+                                        className={`flex-shrink-0 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 flex items-center gap-2 ${
+                                            activeCategory === cat.id 
+                                            ? 'bg-alqods-dark text-alqods-yellow shadow-md' 
+                                            : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        <Icon name={cat.icon} className="w-4 h-4" />
+                                        {cat.title}
+                                    </button>
+                                ))}
+                            </div>
+                        </nav>
+                    )}
+
+                    {/* --- LISTE DES PLATS --- */}
+                    <main className="px-5 py-4">
+                        {filteredMenu.map((category) => (
+                            <div 
+                                key={category.id} 
+                                className={`mb-10 ${(!searchQuery && activeCategory !== category.id) ? 'hidden' : 'block'}`}
+                            >
+                                <h2 className="text-xl font-black text-alqods-dark mb-5 flex items-center gap-2">
+                                    <span className="w-2 h-6 bg-alqods-yellow rounded-full"></span>
+                                    {category.title}
+                                </h2>
+                                
+                                <div className="space-y-4">
+                                    {category.items.map((item, index) => (
+                                        <div 
+                                            key={index} 
+                                            className={`fade-in bg-white p-3 rounded-2xl shadow-sm border-2 flex gap-4 items-center relative overflow-hidden transition-all hover:shadow-md ${item.special ? 'border-alqods-red bg-red-50/30' : 'border-transparent'}`}
+                                            style={{ animationDelay: `${index * 0.05}s` }}
+                                        >
+                                            
+                                            {/* Design Conditionnel pour l'Offre Spéciale */}
+                                            {item.special && (
+                                                <div className="absolute -right-8 top-3 bg-alqods-red text-white text-[0.6rem] font-black uppercase py-1 px-8 transform rotate-45 shadow-sm z-10">
+                                                    Offre
+                                                </div>
+                                            )}
+
+                                            {/* Image du plat avec Fallback robuste */}
+                                            <div className="relative flex-shrink-0">
+                                                <img 
+                                                    src={item.image} 
+                                                    alt={``} 
+                                                    className="w-24 h-24 rounded-xl object-cover shadow-sm border border-gray-100"
+                                                    onError={(e) => { 
+                                                        e.target.onerror = null; 
+                                                        e.target.src = `https://placehold.co/200x200/facc15/1e293b?text=Al+Qods&font=poppins`; 
+                                                    }}
+                                                />
+                                            </div>
+
+                                            {/* Infos du plat */}
+                                            <div className="flex-1 py-1 pr-2">
+                                                <h3 className={`font-bold text-[0.95rem] leading-tight mb-1 ${item.special ? 'text-alqods-red' : 'text-alqods-dark'}`}>
+                                                    {item.name}
+                                                </h3>
+                                                {item.desc && <p className="text-gray-500 text-xs mb-3 line-clamp-2">{item.desc}</p>}
+                                                <div className="font-black text-lg text-alqods-dark mt-auto">
+                                                    {item.price} <span className="text-[0.65rem] font-bold text-gray-500 ml-0.5">DH</span>
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+
+                        {filteredMenu.length === 0 && (
+                            <div className="text-center text-gray-400 py-12 fade-in">
+                                <Icon name="search-x" className="w-12 h-12 mx-auto mb-4 opacity-30 text-alqods-yellow" />
+                                <p className="font-medium text-gray-500">Aucun résultat pour "{searchQuery}"</p>
+                            </div>
+                        )}
+                    </main>
+
+                    {/* Footer / Bouton d'appel fixé en bas */}
+                    <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none z-30">
+                        <a 
+                            href="tel:0624435876" 
+                            className="w-full bg-alqods-dark text-alqods-yellow font-bold py-4 rounded-2xl flex items-center justify-center gap-3 shadow-xl transition-transform active:scale-95 pointer-events-auto border-2 border-alqods-yellow"
+                        >
+                            <Icon name="phone-call" className="w-5 h-5" />
+                            Commander la livraison
+                        </a>
+                    </footer>
+
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
+
+
+
